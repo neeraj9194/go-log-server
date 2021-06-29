@@ -1,13 +1,12 @@
 package src
 
 import (
+	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"time"
-	"io/ioutil"
-	"encoding/json"
 )
-
 
 type LogStruct struct {
 	// common attributes
@@ -60,7 +59,7 @@ func storeLogs(w http.ResponseWriter, r *http.Request) {
 
 	var logs []LogStruct
 	err = json.Unmarshal(bodyBytes, &logs)
-	
+
 	// Write to file.
 	fs := FS{
 		"/home/neeraj/projects/go-log-server/test",
@@ -75,7 +74,26 @@ func storeLogs(w http.ResponseWriter, r *http.Request) {
 }
 
 func listLogs(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("LISTING!")
+	fmt.Println("hello")
+	logsChannel := make(chan LogStruct)
+	fs := FS{
+		"/home/neeraj/projects/go-log-server/test",
+	}
+
+	fs.readDir(logsChannel)
+
+	var valList []LogStruct
+	for {
+		fmt.Println("hello2")
+		select {
+		case val := <-logsChannel:
+			fmt.Println(val)
+			valList = append(valList, val)
+		default:
+			json.NewEncoder(w).Encode(valList)
+			return
+		}
+	}
 }
 
 func RunServer() {
