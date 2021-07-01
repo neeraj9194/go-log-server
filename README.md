@@ -1,6 +1,19 @@
 # go-log-server
 A log server to receive logs from different clients and store them in S3
 
+## Features
+
+- [x] Server to accept Json logs
+- [x] Store logs in file
+
+## ToDo
+
+- [ ] Listing usign a API.
+- [x] Accept unstructured logs as well.
+- [ ] S3 integration using interfaces
+- [ ] Tests
+ 
+
 ## Install
 
 To install you can use makefile or build using commands
