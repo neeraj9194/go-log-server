@@ -9,7 +9,7 @@
             "type": "go",
             "request": "launch",
             "mode": "auto",
-            "program": "/home/neeraj/projects/go-log-server/src/server.go"
+            "program": "/home/neeraj/projects/go-log-server/main.go"
         }
     ]
 }

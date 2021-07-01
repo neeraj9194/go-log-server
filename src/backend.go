@@ -2,12 +2,10 @@ package src
 
 import (
 	"bufio"
-	"encoding/json"
-	"fmt"
 	"log"
 	"os"
 	"path"
-	"sync"
+	"path/filepath"
 )
 
 type FS struct {
@@ -17,36 +15,57 @@ type FS struct {
 func (fs FS) write(logs []LogStruct) {
 	// Create soem kind of file pools to write efficiently
 
-	fmt.Println(logs)
 	for _, val := range logs {
-		writeLog(path.Join(fs.root, val.Service), val)
+		folderPath := path.Join(fs.root, val.Service)
+		os.MkdirAll(folderPath, os.ModePerm)
+		writeLog(path.Join(folderPath, val.Host), val.Message)
 	}
 }
 
-func writeLog(path string, log LogStruct) {
-	d, _ := json.Marshal(log)
+func writeLog(path string, log string) {
+	logLine := []byte(log)
 
 	f, err := os.OpenFile(path, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	check(err)
 	defer f.Close()
-	_, er := f.Write(d)
+	_, er := f.Write(logLine)
 	f.WriteString("\n")
 	check(er)
 }
 
-func (fs FS) readDir(logsChannel chan LogStruct) {
-	var wg sync.WaitGroup
-	x := []int{1}
-	for range x {
-		print("XXX")
-		wg.Add(1)
-		go readFile(&wg, "/home/neeraj/projects/go-log-server/test/generic", logsChannel)
+func (fs FS) readLogs(logsChannel chan string, service string, hostname string) {
+	files := readDirectory(fs.root, service, hostname)
+	for _, file := range files {
+		readFile(file, logsChannel)
 	}
-	wg.Wait()
+	close(logsChannel)
 }
 
-func readFile(wg *sync.WaitGroup, srcFilePath string, logsChannel chan LogStruct) {
-	defer wg.Done()
+func readDirectory(root string, service string, hostname string) []string {
+	var files []string
+	if hostname == "" {
+		err := filepath.Walk(path.Join(root, service),
+			func(path string, info os.FileInfo, err error) error {
+				if err != nil {
+					return err
+				}
+				if !info.IsDir() {
+					files = append(files, path)
+				}
+				return nil
+			})
+		if err != nil {
+			log.Println(err)
+		}
+	} else {
+		f := path.Join(root, service, hostname)
+		files = append(files, f)
+	}
+
+	return files
+}
+
+func readFile(srcFilePath string, logsChannel chan string) {
 
 	file, err := os.Open(srcFilePath)
 	if err != nil {
@@ -54,17 +73,10 @@ func readFile(wg *sync.WaitGroup, srcFilePath string, logsChannel chan LogStruct
 	}
 	defer file.Close()
 
-	var log LogStruct
 	scanner := bufio.NewScanner(file)
-
 	for scanner.Scan() {
-		x := scanner.Text()
-		fmt.Println(x)
-		json.Unmarshal([]byte(x), &log)
-		fmt.Println(log)
-		logsChannel <- log
+		logsChannel <- scanner.Text()
 	}
-	print("KJSADDSLKA\n")
 }
 
 func check(e error) {

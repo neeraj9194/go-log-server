@@ -70,13 +70,13 @@ URL: `/`
 
 METHOD: `GET`
 
-PARAMS: (NOT DONE)
+PARAMS: `service`, `hostname`
 
-&nbsp;&nbsp;&nbsp;&nbsp;`search`: To search logs
+&nbsp;&nbsp;&nbsp;&nbsp;`search`: To search logs (Not done)
 
-&nbsp;&nbsp;&nbsp;&nbsp;`start_ts`: Logs from timestamp 
+&nbsp;&nbsp;&nbsp;&nbsp;`service`: Filter logs based on service name 
 
-&nbsp;&nbsp;&nbsp;&nbsp;`end_ts`: Logs until timestamp
+&nbsp;&nbsp;&nbsp;&nbsp;`hostname`: Filter logs on hostname where it originated.
 
  
 REQUEST BODY SCHEMA: `application/json`
@@ -96,4 +96,10 @@ BODY:
 ...
 ]
 ```
+
+
+Server:
+- It stores the logs, bucket them based on the identifier sent by the client.
+- It should use the filesystem and S3 as backend storage.
+- Support retrieval on exact text to begin with, later can support full text search.
 

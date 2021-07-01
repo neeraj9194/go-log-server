@@ -5,25 +5,14 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
-	"time"
+	// "sync"
 )
 
 type LogStruct struct {
 	// common attributes
-	Host      string    `json:"host"`
-	Level     string    `json:"level"`
-	Timestamp time.Time `json:"timestamp"`
-	Message   string    `json:"message"`
-	Service   string    `json:"service"`
-
-	// The structure can be extended to support diffrent types of services like HTTP, DB etc.
-	Http HTTP `json:"http"`
-}
-
-type HTTP struct {
-	URL      string `json:"url"`
-	ClientIP string `json:"client_ip"`
-	Version  string `json:"version"`
+	Host    string `json:"host"`
+	Message string `json:"message"`
+	Service string `json:"service"`
 }
 
 func logs(w http.ResponseWriter, r *http.Request) {
@@ -62,7 +51,7 @@ func storeLogs(w http.ResponseWriter, r *http.Request) {
 
 	// Write to file.
 	fs := FS{
-		"/home/neeraj/projects/go-log-server/test",
+		"/home/neeraj/projects/go-log-server/output",
 	}
 	fs.write(logs)
 
@@ -74,26 +63,24 @@ func storeLogs(w http.ResponseWriter, r *http.Request) {
 }
 
 func listLogs(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("hello")
-	logsChannel := make(chan LogStruct)
+	logsChannel := make(chan string)
+	
+	// Prams
+	query := r.URL.Query()
+    service := query.Get("service")
+    hostname := query.Get("hostname")
+    
 	fs := FS{
-		"/home/neeraj/projects/go-log-server/test",
+		"/home/neeraj/projects/go-log-server/output",
 	}
 
-	fs.readDir(logsChannel)
+	go fs.readLogs(logsChannel, service, hostname)
 
-	var valList []LogStruct
-	for {
-		fmt.Println("hello2")
-		select {
-		case val := <-logsChannel:
-			fmt.Println(val)
-			valList = append(valList, val)
-		default:
-			json.NewEncoder(w).Encode(valList)
-			return
-		}
+	var valList []string
+	for val := range logsChannel {
+		valList = append(valList, val)
 	}
+	json.NewEncoder(w).Encode(valList)
 }
 
 func RunServer() {
