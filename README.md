@@ -8,7 +8,7 @@ A log server to receive logs from different clients and store them in S3
 
 ## ToDo
 
-- [ ] Listing usign a API.
+- [x] Listing usign a API.
 - [x] Accept unstructured logs as well.
 - [ ] S3 integration using interfaces
 - [ ] Tests
