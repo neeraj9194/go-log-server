@@ -54,12 +54,8 @@ BODY:
 ```
 {
     "host":"ABC-123",
-    "level":"INFO",
-    "timestamp":"2021-01-01T00:00:00Z",
     "message":"message...",
     "service":"generic",
-    "http":
-        {"url":"","client_ip":"","version":""}
 }
 ```
 
@@ -84,15 +80,10 @@ REQUEST BODY SCHEMA: `application/json`
 BODY:
 
 ```
-[{
-    "host":"ABC-123",
-    "level":"INFO",
-    "timestamp":"2021-01-01T00:00:00Z",
-    "message":"message...",
-    "service":"generic",
-    "http":
-        {"url":"","client_ip":"","version":""}
-}
+[
+    "message..."
+    "message2..."
+    "message3..."
 ...
 ]
 ```
