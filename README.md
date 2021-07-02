@@ -10,8 +10,8 @@ A log server to receive logs from different clients and store them in S3
 
 - [x] Listing usign a API.
 - [x] Accept unstructured logs as well.
+- [x] Unit Tests
 - [ ] S3 integration using interfaces
-- [ ] Tests
  
 
 ## Install

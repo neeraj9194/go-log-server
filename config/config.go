@@ -30,12 +30,15 @@ func (cl *Loader) Load(unmarshaler Unmarshaler, target interface{}) error {
 type ServerConfig struct {
 	Port	string
 	Backend	string
+	Root	string
 }
 
+var RootDir string
 
 func LoadConfig(fileName string) ServerConfig {
 	config := ServerConfig{}
 	configor.Load(&config, fileName)
 	fmt.Printf("Server config: %#v\n", config)
+	RootDir = config.Root
 	return config
 }

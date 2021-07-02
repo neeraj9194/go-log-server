@@ -1,2 +1,3 @@
 port: 5000
 backend: filesystem
+root: /home/neeraj/projects/go-log-server/output

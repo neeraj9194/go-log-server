@@ -5,11 +5,10 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
-	// "sync"
+	"github.com/neeraj9194/go-log-server/config"
 )
 
 type LogStruct struct {
-	// common attributes
 	Host    string `json:"host"`
 	Message string `json:"message"`
 	Service string `json:"service"`
@@ -51,7 +50,7 @@ func storeLogs(w http.ResponseWriter, r *http.Request) {
 
 	// Write to file.
 	fs := FS{
-		"/home/neeraj/projects/go-log-server/output",
+		config.RootDir,
 	}
 	fs.write(logs)
 
@@ -71,7 +70,7 @@ func listLogs(w http.ResponseWriter, r *http.Request) {
     hostname := query.Get("hostname")
     
 	fs := FS{
-		"/home/neeraj/projects/go-log-server/output",
+		config.RootDir,
 	}
 
 	go fs.readLogs(logsChannel, service, hostname)
@@ -83,9 +82,9 @@ func listLogs(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(valList)
 }
 
-func RunServer() {
+func RunServer(serverPort string) {
 	http.HandleFunc("/", logs)
-	err := http.ListenAndServe(":5000", nil)
+	err := http.ListenAndServe(fmt.Sprintf(":%v", serverPort), nil)
 	if err != nil {
 		panic(err)
 	}
